@@ -548,3 +548,119 @@ body {
   color: var(--danger);
   line-height: 1.5;
 }
+
+/* ============================================================
+   Mobile responsive — breakpoint 640px
+   ============================================================ */
+@media (max-width: 640px) {
+  .app {
+    padding: 0 14px 60px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 0;
+  }
+
+  .wallet-bar {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .brand h1 {
+    font-size: 16px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tab {
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+    font-size: 12px;
+    padding: 10px 8px;
+  }
+
+  .panel {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .panel h2 {
+    font-size: 16px;
+  }
+
+  .amount-hero {
+    font-size: 24px;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .detail-row .v {
+    text-align: left;
+    word-break: break-all;
+  }
+
+  .btn-row {
+    flex-direction: column;
+  }
+
+  .btn-row .btn {
+    width: 100%;
+  }
+
+  /* field row di EscrowDetail (Escrow ID + tombol Cari) jadi stack */
+  .field[style*="flex-direction: row"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .escrow-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .toast {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    max-width: none;
+    width: auto;
+  }
+
+  .tx-status {
+    top: auto;
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+  }
+
+  .ai-card {
+    padding: 14px;
+  }
+
+  .ai-verdict {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .badges,
+  .legend {
+    font-size: 10px;
+  }
+
+  .tab {
+    flex: 1 1 100%;
+  }
+}
