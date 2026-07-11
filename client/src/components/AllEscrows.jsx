@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getAllEscrows, stroopsToUsdc } from "../lib/stellar.js";
 
 const STATUS_CLASS = {
@@ -8,7 +8,7 @@ const STATUS_CLASS = {
   Refunded: "status-refunded",
 };
 
-export default function AllEscrows({ onSelect, onError }) {
+export default function AllEscrows({ onSelect, onError, eventTick }) {
   const [escrows, setEscrows] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +23,15 @@ export default function AllEscrows({ onSelect, onError }) {
       setLoading(false);
     }
   }
+
+  // Real-time sync: kalau daftar sudah pernah dimuat dan ada event
+  // baru dari contract, refresh otomatis di background.
+  useEffect(() => {
+    if (eventTick > 0 && escrows !== null) {
+      handleLoad();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventTick]);
 
   return (
     <div className="panel">

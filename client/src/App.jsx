@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import WalletBar from "./components/WalletBar.jsx";
 import CreateEscrow from "./components/CreateEscrow.jsx";
 import EscrowDetail from "./components/EscrowDetail.jsx";
 import AllEscrows from "./components/AllEscrows.jsx";
-import { CONTRACT_ID } from "./lib/stellar.js";
+import TransactionStatus from "./components/TransactionStatus.jsx";
+import { CONTRACT_ID, subscribeToContractEvents } from "./lib/stellar.js";
 
 const TABS = [
   { id: "create", label: "Buat Escrow" },
@@ -16,10 +17,35 @@ export default function App() {
   const [tab, setTab] = useState("create");
   const [selectedId, setSelectedId] = useState(null);
   const [toast, setToast] = useState(null);
+  const [txStatus, setTxStatus] = useState(null); // {stage, detail}
+  const [eventTick, setEventTick] = useState(0); // naik tiap ada event on-chain baru
+  const [liveIndicator, setLiveIndicator] = useState(false);
+
+  // ------------------------------------------------------------
+  // Event listening & real-time sync — polling getEvents() dari
+  // contract kita. Setiap event baru (transfer dana, dsb) memicu
+  // eventTick naik, yang di-dengarkan oleh EscrowDetail/AllEscrows
+  // untuk auto-refresh data tanpa perlu klik manual.
+  // ------------------------------------------------------------
+  useEffect(() => {
+    const unsubscribe = subscribeToContractEvents((ev) => {
+      setEventTick((t) => t + 1);
+      setLiveIndicator(true);
+      setTimeout(() => setLiveIndicator(false), 2000);
+    }, 6000);
+    return unsubscribe;
+  }, []);
 
   function showToast(type, message, url) {
     setToast({ type, message, url });
     setTimeout(() => setToast(null), 8000);
+  }
+
+  function handleTxStatus(stage, detail) {
+    setTxStatus({ stage, detail });
+    if (stage === "success" || stage === "failed") {
+      setTimeout(() => setTxStatus((cur) => (cur?.stage === stage ? null : cur)), 6000);
+    }
   }
 
   function handleTxSuccess(result) {
@@ -46,7 +72,10 @@ export default function App() {
           <div className="mark" />
           <div>
             <h1>Escrow AI</h1>
-            <span className="tag">Stellar Soroban · Testnet</span>
+            <span className="tag">
+              Stellar Soroban · Testnet
+              {liveIndicator && <span className="live-dot" title="Event on-chain baru terdeteksi"> ● live</span>}
+            </span>
           </div>
         </div>
         <WalletBar address={address} onConnected={setAddress} onError={handleError} />
@@ -65,7 +94,12 @@ export default function App() {
       </div>
 
       {tab === "create" && (
-        <CreateEscrow address={address} onSuccess={handleTxSuccess} onError={handleError} />
+        <CreateEscrow
+          address={address}
+          onSuccess={handleTxSuccess}
+          onError={handleError}
+          onTxStatus={handleTxStatus}
+        />
       )}
 
       {tab === "detail" && (
@@ -74,14 +108,24 @@ export default function App() {
           presetId={selectedId}
           onSuccess={handleTxSuccess}
           onError={handleError}
+          onTxStatus={handleTxStatus}
+          eventTick={eventTick}
         />
       )}
 
-      {tab === "all" && <AllEscrows onSelect={goToEscrow} onError={handleError} />}
+      {tab === "all" && (
+        <AllEscrows onSelect={goToEscrow} onError={handleError} eventTick={eventTick} />
+      )}
 
       <p className="hint" style={{ textAlign: "center", marginTop: 30 }}>
         Contract ID: {CONTRACT_ID}
       </p>
+
+      <TransactionStatus
+        stage={txStatus?.stage}
+        detail={txStatus?.detail}
+        onDismiss={() => setTxStatus(null)}
+      />
 
       {toast && (
         <div className={`toast ${toast.type}`}>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createEscrow } from "../lib/stellar.js";
 
-export default function CreateEscrow({ address, onSuccess, onError }) {
+export default function CreateEscrow({ address, onSuccess, onError, onTxStatus }) {
   const [seller, setSeller] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -20,12 +20,10 @@ export default function CreateEscrow({ address, onSuccess, onError }) {
 
     setLoading(true);
     try {
-      const result = await createEscrow({
-        buyer: address,
-        seller: seller.trim(),
-        amount,
-        description,
-      });
+      const result = await createEscrow(
+        { buyer: address, seller: seller.trim(), amount, description },
+        onTxStatus
+      );
       onSuccess(result, result.returnValue);
       setSeller("");
       setAmount("");

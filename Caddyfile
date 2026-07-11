@@ -1,0 +1,7 @@
+{$DOMAIN_CLIENT} {
+    reverse_proxy client:80
+}
+
+{$DOMAIN_API} {
+    reverse_proxy server:3001
+}

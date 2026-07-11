@@ -9,13 +9,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Cerebras pakai API yang OpenAI-compatible — cukup ganti baseURL.
+// Free tier: 1 juta token/hari, tanpa kartu kredit. Daftar di cloud.cerebras.ai
 const cerebras = new OpenAI({
   apiKey: process.env.CEREBRAS_API_KEY,
   baseURL: "https://api.cerebras.ai/v1",
 });
 
+// Catatan: katalog model Cerebras kadang berubah. Kalau model ini error
+// "model not found", cek daftar terbaru di cloud.cerebras.ai/docs dan
+// ganti lewat env var CEREBRAS_MODEL tanpa perlu ubah kode.
 const MODEL = process.env.CEREBRAS_MODEL || "llama-3.3-70b";
 
+// ------------------------------------------------------------
+// Fallback cached response — dipakai HANYA kalau panggilan API
+// live gagal/timeout, supaya demo tidak pernah macet total.
+// ------------------------------------------------------------
 function fallbackRecommendation(disputeReason) {
   return {
     recommendation: "buyer",
@@ -68,6 +77,7 @@ Analisis secara objektif berdasarkan informasi di atas saja (jangan mengarang bu
     res.json(parsed);
   } catch (err) {
     console.error("AI recommendation error:", err.message);
+    // Jangan biarkan demo mati total kalau API bermasalah — kasih fallback.
     res.json(fallbackRecommendation(disputeReason));
   }
 });

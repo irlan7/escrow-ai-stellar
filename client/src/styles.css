@@ -74,9 +74,22 @@ body {
 }
 
 .brand .tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--mono);
   font-size: 11px;
   color: var(--ink-dim);
+}
+
+.live-dot {
+  color: var(--teal);
+  font-weight: 600;
+  animation: livepulse 1s ease-in-out infinite;
+}
+@keyframes livepulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* ---------- Wallet bar ---------- */
@@ -446,4 +459,92 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ---------- Transaction status tracker ---------- */
+.tx-status {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 300px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  z-index: 60;
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+}
+.tx-status.tx-pending {
+  border-color: var(--violet);
+}
+.tx-status.tx-success {
+  border-color: var(--teal);
+}
+.tx-status.tx-failed {
+  border-color: var(--danger);
+}
+.tx-status-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tx-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--violet);
+}
+.tx-success .tx-status-dot {
+  background: var(--teal);
+}
+.tx-failed .tx-status-dot {
+  background: var(--danger);
+}
+.tx-pending .tx-status-dot {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.tx-status-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  flex: 1;
+}
+.tx-status-close {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+.tx-progress-track {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+}
+.tx-progress-seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.tx-progress-seg.filled {
+  background: var(--violet);
+}
+.tx-status-link {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--teal);
+}
+.tx-status-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--danger);
+  line-height: 1.5;
 }

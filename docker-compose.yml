@@ -1,0 +1,36 @@
+services:
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_AI_API_URL: https://${DOMAIN_API}
+    restart: unless-stopped
+
+  server:
+    build: ./server
+    environment:
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+      - CEREBRAS_MODEL=${CEREBRAS_MODEL:-gpt-oss-120b}
+      - PORT=3001
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - DOMAIN_CLIENT=${DOMAIN_CLIENT}
+      - DOMAIN_API=${DOMAIN_API}
+    depends_on:
+      - client
+      - server
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

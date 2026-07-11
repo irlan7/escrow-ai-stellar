@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   getEscrow,
   releaseEscrow,
@@ -27,7 +27,7 @@ const STATUS_CLASS = {
   Refunded: "status-refunded",
 };
 
-export default function EscrowDetail({ address, presetId, onError, onSuccess }) {
+export default function EscrowDetail({ address, presetId, onError, onSuccess, onTxStatus, eventTick }) {
   const [escrowId, setEscrowId] = useState(presetId || "");
   const [escrow, setEscrow] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -56,6 +56,15 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess }) 
     if (presetId) handleFetch(presetId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presetId]);
+
+  // Real-time sync: kalau ada event on-chain baru dari contract dan
+  // escrow ini sedang ditampilkan, refresh otomatis tanpa perlu klik "Cari".
+  useEffect(() => {
+    if (eventTick > 0 && escrow?.id) {
+      handleFetch(escrow.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventTick]);
 
   async function withAction(fn) {
     if (!address) {
@@ -147,7 +156,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess }) 
                     className="btn btn-primary"
                     disabled={actionLoading}
                     onClick={() =>
-                      withAction(() => releaseEscrow({ escrowId: escrow.id, caller: address }))
+                      withAction(() => releaseEscrow({ escrowId: escrow.id, caller: address }, onTxStatus))
                     }
                   >
                     ✅ Release Dana ke Seller
@@ -181,7 +190,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess }) 
                     disabled={actionLoading || !disputeReason}
                     onClick={() =>
                       withAction(() =>
-                        raiseDispute({ escrowId: escrow.id, caller: address, reason: disputeReason })
+                        raiseDispute({ escrowId: escrow.id, caller: address, reason: disputeReason }, onTxStatus)
                       )
                     }
                   >
@@ -204,7 +213,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess }) 
                     disabled={actionLoading}
                     onClick={() =>
                       withAction(() =>
-                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: false })
+                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: false }, onTxStatus)
                       )
                     }
                   >
@@ -215,7 +224,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess }) 
                     disabled={actionLoading}
                     onClick={() =>
                       withAction(() =>
-                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: true })
+                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: true }, onTxStatus)
                       )
                     }
                   >
