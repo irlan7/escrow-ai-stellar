@@ -9,7 +9,7 @@ Arbitrator  : GBYKGB7JKBF54BXVJ2JOVG6OE35GCRKNZK7M7RSMPJNFBT45WLAERR6K
 Network     : Stellar Testnet
 ## Submission details
 
-- **Live demo**: https://escrow.quantumpaychain.org
+- **Live demo**: https://escrow.quantumpaychain.org (production, VPS + custom domain) or https://escrow-ai-stellar.vercel.app (Vercel mirror)
 - **Deployed contract address**: [`CC2ABCGDBFMYMZFBDYTBDJBSIXOXFUO7D5U72M2ALVGHG3ZTIGMPUIM4`](https://stellar.expert/explorer/testnet/contract/CC2ABCGDBFMYMZFBDYTBDJBSIXOXFUO7D5U72M2ALVGHG3ZTIGMPUIM4) (Stellar Testnet)
 - **Sample transaction** (`create_escrow` call, verifiable on Stellar Expert): [`d881345172492fa5267bf96d78b3473d8ab973d804290ef8a45145686f9b072c`](https://stellar.expert/explorer/testnet/tx/d881345172492fa5267bf96d78b3473d8ab973d804290ef8a45145686f9b072c)
 - **Wallet options available** (StellarWalletsKit multi-wallet modal):
