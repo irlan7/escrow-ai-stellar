@@ -1,6 +1,12 @@
 # ---------- Stage 1: build ----------
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
+
+# StellarWalletsKit membawa dependency transitif (mis. `usb`, untuk dukungan
+# hardware wallet seperti Ledger) yang perlu dikompilasi lewat node-gyp.
+# Alpine tidak punya Python/build tools secara default — tambahkan di sini.
+# Layer ini tidak ikut ke image final (multi-stage build).
+RUN apk add --no-cache python3 make g++
 
 COPY package.json package-lock.json* ./
 RUN npm install
