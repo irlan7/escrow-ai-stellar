@@ -71,37 +71,52 @@ Wallet buyer butuh trustline + saldo USDC sebelum bisa `create_escrow`:
 1. Buka [Stellar Lab Friendbot](https://lab.stellar.org/account/fund) → pilih asset USDC → klik "Add trustline" untuk alamat buyer kamu
 2. Buka [Circle USDC Faucet](https://faucet.circle.com/) → pilih network Stellar → paste alamat buyer → minta token (20 USDC per request)
 
-## Deploy ke production — VPS dengan Docker
+## Deploy ke production — VPS (nginx sistem sudah ada)
 
-Setup ini menjalankan frontend + backend + reverse proxy HTTPS otomatis (Caddy) dalam satu `docker compose up`, cocok untuk VPS (misal Singapura) dengan domain custom (`escrow.quantumpaychain.org`, dsb).
+Setup ini **tidak menjalankan reverse proxy sendiri** — container Escrow AI cuma bind ke `127.0.0.1` (port internal), lalu nginx sistem yang sudah berjalan di VPS (untuk project lain) ditambahkan satu file config baru untuk domain Escrow AI. Tidak menyentuh config domain/project lain sama sekali.
 
 ### Prasyarat di VPS
-- Docker & Docker Compose terpasang (`curl -fsSL https://get.docker.com | sh`)
-- Dua domain/subdomain sudah **diarahkan (A record) ke IP VPS ini** sebelum deploy — Caddy butuh ini untuk provisioning sertifikat HTTPS otomatis lewat Let's Encrypt:
-  - `escrow.quantumpaychain.org` → frontend
-  - `escrow-api.quantumpaychain.org` → backend/API
-- Port 80 dan 443 terbuka di firewall VPS
+- Docker & Docker Compose sudah terpasang
+- nginx sistem + certbot sudah berjalan (bukan di dalam Docker)
+- Domain `escrow.quantumpaychain.org` (atau domain lain) sudah **diarahkan A record ke IP VPS ini**
 
-### Langkah deploy
+### 1. Jalankan container (port internal saja)
 
 ```bash
 git clone https://github.com/irlan7/escrow-ai-stellar.git
-cd escrow-ai-stellar   # sesuaikan kalau frontend ada di sub-folder repo
-
+cd escrow-ai-stellar
 cp .env.example .env
-nano .env   # isi DOMAIN_CLIENT, DOMAIN_API, dan CEREBRAS_API_KEY
+nano .env   # isi DOMAIN, CEREBRAS_API_KEY
 
 docker compose up -d --build
 ```
 
-Caddy otomatis provisioning sertifikat HTTPS begitu domain sudah resolve ke VPS ini — tunggu 1-2 menit di percobaan pertama. Cek status:
+Cek container jalan di port internal (bukan diekspos publik):
 
 ```bash
 docker compose ps
-docker compose logs -f caddy
+curl http://127.0.0.1:8095   # harus balas HTML frontend
+curl http://127.0.0.1:8096/health   # harus balas {"status":"ok",...}
 ```
 
-Setelah jalan, buka `https://escrow.quantumpaychain.org` — harus langsung HTTPS otomatis, frontend terhubung ke backend di `https://escrow-api.quantumpaychain.org`.
+### 2. Daftarkan domain ke nginx sistem
+
+```bash
+sudo cp deploy/escrow.quantumpaychain.org /etc/nginx/sites-available/escrow.quantumpaychain.org
+sudo ln -s /etc/nginx/sites-available/escrow.quantumpaychain.org /etc/nginx/sites-enabled/
+sudo nginx -t                    # wajib cek syntax dulu sebelum reload
+sudo systemctl reload nginx
+```
+
+### 3. Aktifkan HTTPS lewat certbot (sama seperti domain lain di VPS ini)
+
+```bash
+sudo certbot --nginx -d escrow.quantumpaychain.org
+```
+
+Certbot otomatis menambahkan blok SSL + redirect HTTP→HTTPS ke file config, sama seperti domain lain (`dex.quantumpaychain.org`, dst) — tidak perlu setup manual.
+
+Buka `https://escrow.quantumpaychain.org` — frontend di `/`, backend AI di `/api/*`.
 
 ### Update setelah perubahan kode
 
@@ -109,16 +124,13 @@ Setelah jalan, buka `https://escrow.quantumpaychain.org` — harus langsung HTTP
 git pull
 docker compose up -d --build
 ```
+(Tidak perlu ulang langkah nginx/certbot — itu cuma sekali di awal.)
 
 ### Mirror di Vercel (opsional, untuk memenuhi permintaan panitia)
 
-Panitia hackathon meminta deploy di Vercel. VPS dengan domain custom bisa jadi deployment utama, sambil tetap sediakan mirror sederhana di Vercel sebagai bukti compliance:
-
-1. Import repo ini ke [vercel.com](https://vercel.com), set root directory ke `client`
-2. Tambahkan environment variable `VITE_AI_API_URL` mengarah ke `https://escrow-api.quantumpaychain.org` (backend yang sama, di-share dari VPS)
-3. Deploy — dapat URL `xxx.vercel.app` sebagai cadangan/bukti compliance
-
-Backend cukup satu (di VPS), kedua frontend (VPS + Vercel) bisa memakainya bersama.
+1. Import repo ke [vercel.com](https://vercel.com), root directory `client`
+2. Env var `VITE_AI_API_URL` = `https://escrow.quantumpaychain.org` (backend yang sama, di-share dari VPS)
+3. Deploy — URL `xxx.vercel.app` sebagai cadangan/bukti compliance
 
 ## Catatan teknis
 

@@ -1,0 +1,42 @@
+# /etc/nginx/sites-enabled/escrow.quantumpaychain.org
+#
+# Escrow AI — APAC Stellar Hackathon 2026
+# - location /api/  → Backend Express (Cerebras AI recommendation), port 8096
+# - location /      → Frontend React/Vite (static, via nginx di container), port 8095
+# - Container jalan di 127.0.0.1 saja lewat docker-compose, tidak diekspos publik
+#   kecuali lewat proxy nginx sistem ini.
+#
+# TIDAK menyentuh project/domain lain (dex, aetraai, quantumpay, wallet, dll).
+#
+# DEPLOY:
+#   sudo cp escrow.quantumpaychain.org /etc/nginx/sites-available/escrow.quantumpaychain.org
+#   sudo ln -s /etc/nginx/sites-available/escrow.quantumpaychain.org /etc/nginx/sites-enabled/
+#   sudo nginx -t
+#   sudo systemctl reload nginx
+#   sudo certbot --nginx -d escrow.quantumpaychain.org
+#   (certbot akan otomatis menambahkan blok SSL & redirect HTTP->HTTPS ke file ini)
+
+server {
+    listen 80;
+    server_name escrow.quantumpaychain.org;
+
+    # ── Backend API (Cerebras AI recommendation) ─────────────────────────────
+    location /api/ {
+        proxy_pass http://127.0.0.1:8096;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # ── Frontend (Vite build, diserve nginx di dalam container) ──────────────
+    location / {
+        proxy_pass http://127.0.0.1:8095;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
