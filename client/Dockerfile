@@ -1,12 +1,16 @@
 # ---------- Stage 1: build ----------
-FROM node:22-alpine AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
 # StellarWalletsKit membawa dependency transitif (mis. `usb`, untuk dukungan
-# hardware wallet seperti Ledger) yang perlu dikompilasi lewat node-gyp.
-# Alpine tidak punya Python/build tools secara default — tambahkan di sini.
+# hardware wallet seperti Ledger) berupa native module. Alpine (musl libc)
+# sering gagal compile package native seperti ini karena header kernel Linux
+# tidak lengkap — pindah ke base Debian (glibc) jauh lebih kompatibel, dan
+# kebanyakan native module sudah sediakan prebuilt binary untuk glibc.
 # Layer ini tidak ikut ke image final (multi-stage build).
-RUN apk add --no-cache python3 make g++
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ linux-libc-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json* ./
 RUN npm install
