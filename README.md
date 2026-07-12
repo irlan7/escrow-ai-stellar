@@ -7,6 +7,7 @@ Contract ID : CC2ABCGDBFMYMZFBDYTBDJBSIXOXFUO7D5U72M2ALVGHG3ZTIGMPUIM4
 USDC (SAC)  : CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA
 Arbitrator  : GBYKGB7JKBF54BXVJ2JOVG6OE35GCRKNZK7M7RSMPJNFBT45WLAERR6K
 Network     : Stellar Testnet
+
 ## Submission details
 
 - **Live demo**: https://escrow.quantumpaychain.org (production, VPS + custom domain) or https://escrow-ai-stellar.vercel.app (Vercel mirror)
@@ -14,12 +15,27 @@ Network     : Stellar Testnet
 - **Sample transaction** (`create_escrow` call, verifiable on Stellar Expert): [`d881345172492fa5267bf96d78b3473d8ab973d804290ef8a45145686f9b072c`](https://stellar.expert/explorer/testnet/tx/d881345172492fa5267bf96d78b3473d8ab973d804290ef8a45145686f9b072c)
 - **Wallet options available** (StellarWalletsKit multi-wallet modal):
 
-  ![Wallet selection modal - Freighter, Albedo, xBull](./docs/wallet-options.png)
+  ![Wallet selection modal — Freighter, Albedo, xBull](./docs/wallet-options.png)
+
+- **Mobile responsive UI**:
+
+  ![Mobile responsive view](./docs/mobile-responsive.png)
+
+- **CI/CD pipeline running** (GitHub Actions):
+
+  ![CI pipeline passing](./docs/ci-pipeline.png)
+
+- **Contract test output**:
+
+  ![Contract test output — passing tests](./docs/test-output.png)
+
+- **Demo video** (1-2 min): _link to be added_
 
 ## Folder structure
 escrow-ai-frontend/
 ├── client/     React + Vite — buyer/seller/arbitrator UI, multi-wallet connect
 └── server/     Express — proxies Cerebras AI calls (keeps the API key off the browser)
+
 ## Prerequisites
 
 - Node.js 18+ and npm
