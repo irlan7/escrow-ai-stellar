@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
      "contracts/contracts/escrow",
+     "contracts/bounty",
    ]
 [workspace.dependencies]
 soroban-sdk = "26"
