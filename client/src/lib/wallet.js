@@ -29,7 +29,7 @@ export class WalletError extends Error {
   }
 }
 
-function classifyError(err) {
+export function classifyError(err) {
   const msg = (err?.message || String(err) || "").toLowerCase();
 
   if (

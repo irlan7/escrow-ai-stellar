@@ -56,6 +56,10 @@ jobs:
         working-directory: client
         run: npm install
 
+      - name: Run frontend unit tests
+        working-directory: client
+        run: npm test
+
       - name: Build frontend
         working-directory: client
         run: npm run build
