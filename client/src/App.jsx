@@ -4,7 +4,9 @@ import CreateEscrow from "./components/CreateEscrow.jsx";
 import EscrowDetail from "./components/EscrowDetail.jsx";
 import AllEscrows from "./components/AllEscrows.jsx";
 import TransactionStatus from "./components/TransactionStatus.jsx";
+import FeedbackWidget from "./components/FeedbackWidget.jsx";
 import { CONTRACT_ID, subscribeToContractEvents } from "./lib/stellar.js";
+import { trackEvent } from "./lib/analytics.js";
 
 const TABS = [
   { id: "create", label: "Buat Escrow" },
@@ -21,6 +23,11 @@ export default function App() {
   const [eventTick, setEventTick] = useState(0); // naik tiap ada event on-chain baru
   const [liveIndicator, setLiveIndicator] = useState(false);
 
+  // Analytics — page_view sekali saat app pertama kali dibuka.
+  useEffect(() => {
+    trackEvent("page_view");
+  }, []);
+
   // ------------------------------------------------------------
   // Event listening & real-time sync — polling getEvents() dari
   // contract kita. Setiap event baru (transfer dana, dsb) memicu
@@ -35,6 +42,11 @@ export default function App() {
     }, 6000);
     return unsubscribe;
   }, []);
+
+  function handleWalletConnected(addr) {
+    setAddress(addr);
+    trackEvent("wallet_connect", addr);
+  }
 
   function showToast(type, message, url) {
     setToast({ type, message, url });
@@ -78,7 +90,7 @@ export default function App() {
             </span>
           </div>
         </div>
-        <WalletBar address={address} onConnected={setAddress} onError={handleError} />
+        <WalletBar address={address} onConnected={handleWalletConnected} onError={handleError} />
       </div>
 
       <div className="tabs">
@@ -126,6 +138,8 @@ export default function App() {
         detail={txStatus?.detail}
         onDismiss={() => setTxStatus(null)}
       />
+
+      <FeedbackWidget address={address} />
 
       {toast && (
         <div className={`toast ${toast.type}`}>

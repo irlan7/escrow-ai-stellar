@@ -18,6 +18,14 @@ services:
       - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
       - CEREBRAS_MODEL=${CEREBRAS_MODEL:-gpt-oss-120b}
       - PORT=3001
+      - DATA_DIR=/app/data
+    volumes:
+      # Data analytics & feedback disimpan di volume terpisah supaya
+      # tidak hilang saat container di-rebuild/redeploy.
+      - server_data:/app/data
     restart: unless-stopped
+
+volumes:
+  server_data:
 
 

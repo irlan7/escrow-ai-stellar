@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createEscrow } from "../lib/stellar.js";
+import { trackEvent } from "../lib/analytics.js";
 
 export default function CreateEscrow({ address, onSuccess, onError, onTxStatus }) {
   const [seller, setSeller] = useState("");
@@ -25,6 +26,7 @@ export default function CreateEscrow({ address, onSuccess, onError, onTxStatus }
         onTxStatus
       );
       onSuccess(result, result.returnValue);
+      trackEvent("create_escrow", address, { amount });
       setSeller("");
       setAmount("");
       setDescription("");

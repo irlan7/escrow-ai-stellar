@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { getAIRecommendation } from "../lib/api.js";
+import { trackEvent } from "../lib/analytics.js";
 
-export default function AIRecommendation({ escrow, onError }) {
+export default function AIRecommendation({ escrow, onError, address }) {
   const [rec, setRec] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -15,6 +16,7 @@ export default function AIRecommendation({ escrow, onError }) {
         amount: escrow.amount,
       });
       setRec(result);
+      trackEvent("ai_recommendation_requested", address, { escrow_id: escrow.id });
     } catch (err) {
       onError(err.message || "Gagal memuat rekomendasi AI");
     } finally {

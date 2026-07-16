@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { trackEvent } from "../lib/analytics.js";
 import {
   getEscrow,
   releaseEscrow,
@@ -66,7 +67,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventTick]);
 
-  async function withAction(fn) {
+  async function withAction(fn, eventName) {
     if (!address) {
       onError("Connect wallet dulu.");
       return;
@@ -75,6 +76,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
     try {
       const result = await fn();
       onSuccess(result);
+      if (eventName) trackEvent(eventName, address, { escrow_id: escrow?.id });
       await handleFetch(escrow.id);
       setShowDisputeForm(false);
       setDisputeReason("");
@@ -156,7 +158,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
                     className="btn btn-primary"
                     disabled={actionLoading}
                     onClick={() =>
-                      withAction(() => releaseEscrow({ escrowId: escrow.id, caller: address }, onTxStatus))
+                      withAction(() => releaseEscrow({ escrowId: escrow.id, caller: address }, onTxStatus), "release_escrow")
                     }
                   >
                     ✅ Release Dana ke Seller
@@ -190,7 +192,8 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
                     disabled={actionLoading || !disputeReason}
                     onClick={() =>
                       withAction(() =>
-                        raiseDispute({ escrowId: escrow.id, caller: address, reason: disputeReason }, onTxStatus)
+                        raiseDispute({ escrowId: escrow.id, caller: address, reason: disputeReason }, onTxStatus),
+                        "raise_dispute"
                       )
                     }
                   >
@@ -204,7 +207,7 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
           {/* ---- Disputed: tampilkan AI recommendation + tombol arbitrator ---- */}
           {escrow.status === "Disputed" && (
             <>
-              <AIRecommendation escrow={{ ...escrow, amount: stroopsToUsdc(escrow.amount) }} onError={onError} />
+              <AIRecommendation escrow={{ ...escrow, amount: stroopsToUsdc(escrow.amount) }} onError={onError} address={address} />
 
               {isArbitrator ? (
                 <div className="btn-row">
@@ -213,7 +216,8 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
                     disabled={actionLoading}
                     onClick={() =>
                       withAction(() =>
-                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: false }, onTxStatus)
+                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: false }, onTxStatus),
+                        "resolve_dispute"
                       )
                     }
                   >
@@ -224,7 +228,8 @@ export default function EscrowDetail({ address, presetId, onError, onSuccess, on
                     disabled={actionLoading}
                     onClick={() =>
                       withAction(() =>
-                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: true }, onTxStatus)
+                        resolveDispute({ escrowId: escrow.id, caller: address, releaseToSeller: true }, onTxStatus),
+                        "resolve_dispute"
                       )
                     }
                   >
