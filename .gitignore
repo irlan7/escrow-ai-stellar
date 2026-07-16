@@ -4,3 +4,4 @@ dist/
 *.log
 caddy_data/
 caddy_config/
+server/data/
