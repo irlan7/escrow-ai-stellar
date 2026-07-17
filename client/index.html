@@ -12,6 +12,40 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Penangkap error paling awal — sengaja BUKAN type="module" dan
+      diletakkan SEBELUM script React, supaya bisa menangkap error yang
+      terjadi bahkan saat proses import module React (mis. kalau salah
+      satu library pihak ketiga gagal di-construct saat awal dimuat).
+      Tanpa ini, error semacam itu cuma bikin layar putih/hitam kosong
+      tanpa petunjuk apapun — sangat menyulitkan debug di HP orang lain.
+    -->
+    <script>
+      function showFatalError(message) {
+        var root = document.getElementById("root");
+        if (!root || root.dataset.appMounted === "1") return;
+        root.innerHTML =
+          '<div style="min-height:100vh;background:#0B1220;color:#E8ECF3;' +
+          'font-family:sans-serif;padding:24px;box-sizing:border-box;">' +
+          '<h2 style="color:#F0A93A;margin-bottom:12px;">Terjadi kesalahan saat memuat aplikasi</h2>' +
+          '<p style="color:#B7C0D1;margin-bottom:16px;">Silakan screenshot pesan di bawah ini dan kirim ke tim kami:</p>' +
+          '<pre style="background:#121B2E;padding:12px;border-radius:8px;white-space:pre-wrap;' +
+          'word-break:break-word;font-size:12px;color:#E8ECF3;">' +
+          String(message).replace(/</g, "&lt;") +
+          "</pre>" +
+          '<button onclick="location.reload()" style="margin-top:16px;padding:10px 16px;' +
+          'background:#2DD4BF;color:#052420;border:none;border-radius:8px;font-weight:600;">' +
+          "Coba Lagi</button></div>";
+      }
+      window.addEventListener("error", function (e) {
+        showFatalError((e.error && e.error.stack) || e.message || "Unknown error");
+      });
+      window.addEventListener("unhandledrejection", function (e) {
+        showFatalError((e.reason && e.reason.stack) || e.reason || "Unhandled promise rejection");
+      });
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
