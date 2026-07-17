@@ -5,7 +5,7 @@ import { describe, it, expect, vi } from "vitest";
 // That pulls in @stellar/freighter-api, which has a CJS/ESM interop issue
 // under Vitest's Node environment. We only need the pure utility functions
 // here (usdcToStroops, stroopsToUsdc, normalizeStatus), so the kit is mocked
-// out - same pattern as wallet.test.js.
+// out — same pattern as wallet.test.js.
 vi.mock("@creit.tech/stellar-wallets-kit", () => ({
   StellarWalletsKit: vi.fn().mockImplementation(() => ({
     openModal: vi.fn(),
@@ -18,6 +18,11 @@ vi.mock("@creit.tech/stellar-wallets-kit", () => ({
   FreighterModule: vi.fn(),
   AlbedoModule: vi.fn(),
   xBullModule: vi.fn(),
+}));
+
+vi.mock("@creit.tech/stellar-wallets-kit/modules/walletconnect.module", () => ({
+  WalletConnectModule: vi.fn(),
+  WalletConnectAllowedMethods: { SIGN: "SIGN" },
 }));
 
 const { usdcToStroops, stroopsToUsdc, normalizeStatus } = await import("./stellar.js");
@@ -36,6 +41,7 @@ describe("usdcToStroops", () => {
   });
 
   it("rounds to the nearest stroop for floating point edge cases", () => {
+    // 0.1 + 0.2 style floating point artifacts should still resolve cleanly
     expect(usdcToStroops("0.1")).toBe(1000000n);
   });
 

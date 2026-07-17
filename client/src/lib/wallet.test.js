@@ -17,6 +17,11 @@ vi.mock("@creit.tech/stellar-wallets-kit", () => ({
   xBullModule: vi.fn(),
 }));
 
+vi.mock("@creit.tech/stellar-wallets-kit/modules/walletconnect.module", () => ({
+  WalletConnectModule: vi.fn(),
+  WalletConnectAllowedMethods: { SIGN: "SIGN" },
+}));
+
 const { classifyError, WalletError } = await import("./wallet.js");
 
 describe("classifyError", () => {
