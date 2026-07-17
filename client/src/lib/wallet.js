@@ -38,15 +38,13 @@ const walletConnectModule = new WalletConnectModule({
   name: "Escrow AI",
   icons: ["https://escrow.quantumpaychain.org/favicon.ico"],
   network: WalletNetwork.TESTNET,
-  // Tanpa ini, Freighter Mobile "tersembunyi" di balik tombol "View all"
-  // dan user harus ketik cari manual — friction besar buat user awam.
-  // Dengan featuredWalletIds, Freighter langsung tampil di daftar utama.
-  // ID ini didapat dari dokumentasi resmi Freighter (docs.freighter.app).
-  appKitOptions: {
-    featuredWalletIds: [
-      "997a355c8f682468706a76cff1b004a7115f505fb962dac54b6e9b442dd1c380", // Freighter
-    ],
-  },
+  // NOTE: sempat dicoba tambah `appKitOptions.featuredWalletIds` supaya
+  // Freighter langsung tampil di daftar utama (tanpa perlu search), tapi
+  // opsi itu menyebabkan crash/layar hitam di sebagian device mobile —
+  // kemungkinan besar karena bentuk config-nya tidak didukung penuh oleh
+  // versi library yang ter-install. Di-revert demi stabilitas — user
+  // tetap bisa connect via "View all" -> cari "Freighter", cuma 1 langkah
+  // ekstra, jauh lebih baik daripada app crash total.
 });
 
 const modules = isMobileDevice
