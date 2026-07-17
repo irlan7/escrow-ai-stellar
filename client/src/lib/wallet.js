@@ -13,29 +13,41 @@ import {
 
 // ============================================================
 // Multi-wallet setup — Freighter, Albedo, xBull (desktop extension)
-// + WalletConnect (mobile, QR code scan — Freighter Mobile, dll).
+// + WalletConnect (mobile, QR code/deep-link — Freighter Mobile, dll).
 // GANTI "YOUR_WALLETCONNECT_PROJECT_ID" dengan Project ID asli dari
 // https://cloud.reown.com (gratis, daftar pakai email, 1 project).
 // Tanpa project ID yang valid, opsi WalletConnect di modal akan
 // muncul tapi gagal connect saat diklik.
+//
+// PENTING (UX fix): di HP, module extension desktop (Freighter,
+// Albedo, xBull) SELALU muncul "Not available" — itu benar secara
+// teknis (extension browser memang tidak ada di mobile), tapi bikin
+// user bingung karena mereka punya app mobile-nya dan malah coba
+// klik opsi yang salah. Solusinya: di device mobile, modul-modul
+// itu disembunyikan total, cuma WalletConnect yang ditampilkan —
+// jadi tidak ada opsi membingungkan yang "kelihatan ada tapi mati".
 // ============================================================
+const isMobileDevice =
+  typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+const walletConnectModule = new WalletConnectModule({
+  url: "https://escrow.quantumpaychain.org",
+  projectId: "af688e100b9324519591346a526e8080",
+  method: WalletConnectAllowedMethods.SIGN,
+  description: "Escrow AI — protokol escrow di Stellar dengan bantuan AI untuk resolusi sengketa",
+  name: "Escrow AI",
+  icons: ["https://escrow.quantumpaychain.org/favicon.ico"],
+  network: WalletNetwork.TESTNET,
+});
+
+const modules = isMobileDevice
+  ? [walletConnectModule]
+  : [new FreighterModule(), new AlbedoModule(), new xBullModule(), walletConnectModule];
+
 export const kit = new StellarWalletsKit({
   network: WalletNetwork.TESTNET,
   selectedWalletId: FREIGHTER_ID,
-  modules: [
-    new FreighterModule(),
-    new AlbedoModule(),
-    new xBullModule(),
-    new WalletConnectModule({
-      url: "https://escrow.quantumpaychain.org",
-      projectId: "af688e100b9324519591346a526e8080",
-      method: WalletConnectAllowedMethods.SIGN,
-      description: "Escrow AI — protokol escrow di Stellar dengan bantuan AI untuk resolusi sengketa",
-      name: "Escrow AI",
-      icons: ["https://escrow.quantumpaychain.org/favicon.ico"],
-      network: WalletNetwork.TESTNET,
-    }),
-  ],
+  modules,
 });
 
 // ============================================================
