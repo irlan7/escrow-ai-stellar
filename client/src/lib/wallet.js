@@ -9,6 +9,7 @@ import {
 import {
   WalletConnectModule,
   WalletConnectAllowedMethods,
+  WALLET_CONNECT_ID,
 } from "@creit.tech/stellar-wallets-kit/modules/walletconnect.module";
 
 // ============================================================
@@ -53,7 +54,13 @@ const modules = isMobileDevice
 
 export const kit = new StellarWalletsKit({
   network: WalletNetwork.TESTNET,
-  selectedWalletId: FREIGHTER_ID,
+  // BUG YANG DIPERBAIKI: sebelumnya di-hardcode ke FREIGHTER_ID untuk
+  // semua device. Di mobile, modul Freighter TIDAK terdaftar (lihat
+  // `modules` di atas), jadi kit gagal construct total dengan error
+  // 'Wallet id "freighter" is not supported' — ini yang menyebabkan
+  // layar hitam/blank di banyak HP. selectedWalletId sekarang mengikuti
+  // modul yang benar-benar terdaftar untuk device tersebut.
+  selectedWalletId: isMobileDevice ? WALLET_CONNECT_ID : FREIGHTER_ID,
   modules,
 });
 
