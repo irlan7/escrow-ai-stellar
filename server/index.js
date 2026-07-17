@@ -232,6 +232,8 @@ function appendJsonArray(filePath, entry) {
 const ALLOWED_EVENTS = new Set([
   "page_view",
   "wallet_connect",
+  "wallet_connect_attempted",
+  "wallet_connect_failed",
   "create_escrow",
   "raise_dispute",
   "ai_recommendation_requested",
