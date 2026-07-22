@@ -126,6 +126,24 @@ POST /api/feedback internal use, called by the feedback widget
 curl https://escrow.quantumpaychain.org/api/feedback/summary
 ```
 
+Full survey (wallet address, email, name, rating, comments) is also collected via a linked Google Form: **[link to be added]** — exported to Excel for record-keeping: **[link to be added]**.
+
+## Improvement Plan — Iterating on Real User Feedback
+
+Feedback collected so far (both via the in-app widget and direct testing) has been positive on core usability ("Simple, easy to use, low charge"; "connect wallet mudah, escrow cepat"). Rather than waiting only for written complaints, we also mined our own **analytics data** for friction signals — and found a real one: a large gap between `wallet_connect_attempted` and successful `wallet_connect` events, concentrated on mobile devices. This directly drove several product iterations already shipped:
+
+| Issue found | Evidence | Fix (commit) |
+|---|---|---|
+| App crashed (blank screen) on some mobile devices when opening | Direct user reports (screenshots) + analytics showing failed connect attempts | `Fix root cause of mobile crash: selectedWalletId must match actually-registered modules per device` |
+| Users on mobile-only devices couldn't connect at all | User feedback: "I only have a phone, no laptop" | `Add WalletConnect support for mobile wallets (Freighter Mobile, etc)` |
+| Freighter (desktop extension) showed as "Not available" on mobile, confusing users into clicking the wrong option | Screenshot from a real tester | `Fix mobile UX: hide desktop-only extension options on mobile, only show WalletConnect` |
+| Silent crashes gave no diagnostic information, making it impossible to help affected users | Repeated "blank screen" reports with no actionable detail | `Add global error catcher for mobile debugging - shows readable error instead of blank black screen` |
+
+**Planned next iterations** (based on ongoing feedback + roadmap):
+- Reduce onboarding friction further for first-time WalletConnect users (currently requires searching for "Freighter" in the wallet list — investigating `featuredWalletIds` support once upstream library stability is confirmed)
+- Add Stellar Anchor (SEP-24) integration so payout recipients can cash out directly to local currency, addressing the gap between "funds received on-chain" and "money I can actually spend" — a concern raised informally by early testers from our target user base (migrant workers/freelancers)
+- Expand the Escrow Bounty module (Tier 2 challenge window, multi-RPC quorum verification) based on the security review conducted with the team
+
 ## Deploying to production — VPS (existing system nginx)
 
 This setup **does not run its own reverse proxy** — the Escrow AI containers only bind to `127.0.0.1` (internal ports). The system nginx already running on the VPS (serving other projects) gets one new config file for the Escrow AI domain. No other domain/project config is touched.
