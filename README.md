@@ -128,7 +128,7 @@ POST /api/feedback internal use, called by the feedback widget
 curl https://escrow.quantumpaychain.org/api/feedback/summary
 ```
 
-Full survey (wallet address, email, name, rating, comments) is also collected via a linked Google Form: **[link to be added]** — exported to Excel for record-keeping: **[link to be added]**.
+Full survey (wallet address, email, name, rating, comments) is also collected via a linked Google Form: **[Escrow AI User Testing & Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLScO6zda9kqQPT_OQE0R0yA9opWw4cBu3va0ouDzLPrxdMecqg/viewform)** — exported to Google Sheets/Excel for record-keeping: **[response spreadsheet](https://docs.google.com/spreadsheets/d/1MECwURJ5G3KLHTxPJ0dPO-9Xo-3zCpU6VwedBNUwpbA/edit?usp=sharing)**.
 
 ## Improvement Plan — Iterating on Real User Feedback
 
