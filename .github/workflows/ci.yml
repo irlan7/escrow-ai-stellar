@@ -84,3 +84,25 @@ jobs:
       - name: Syntax check
         working-directory: server
         run: node --check index.js
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    # CD hanya jalan setelah frontend & backend lolos test/build.
+    # Sengaja TIDAK bergantung pada contract-tests (lihat catatan di job
+    # itu — diblokir bug upstream ed25519-dalek, continue-on-error).
+    # Hanya berjalan di push langsung ke main, bukan di pull_request,
+    # supaya PR dari kontributor luar tidak bisa memicu deploy ke VPS.
+    needs: [frontend-build, backend-check]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/escrow-ai-stellar
+            git pull
+            docker compose up -d --build
