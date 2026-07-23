@@ -2,6 +2,8 @@
 
 Frontend + AI recommendation service for **Escrow AI**, a pair of on-chain protocols on Stellar (Soroban): an escrow payment system with AI-assisted dispute resolution, and a bounty system with deterministic (code-based) verification.
 
+📄 **[Smart contract ↔ frontend integration evidence (code excerpts + function mapping)](./INTEGRATION_EVIDENCE.md)**
+
 ## Smart Contracts (live on testnet)
 
 ### 1. Escrow AI — Payment
